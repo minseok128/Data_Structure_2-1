@@ -16,21 +16,15 @@ typedef struct
 	short int dir;
 } element;
 
-wchar_t arrow[] = {L'\u2191', L'\u2197', L'\u2192', L'\u2198', L'\u2193', L'\u2199', L'\u2190', L'\u2196'};
-element stack[MAX_STACK_SIZE];
-element move[8] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
-int top = -1;
-
-// #define EXIT_ROW 5
-// #define EXIT_COL 5
-// int input_maze[EXIT_ROW][EXIT_COL] = {
-// 	{1, 1, 1, 1, 1, 1, 1},
-// 	{1, 0, 0, 1, 0, 1, 1},
-// 	{1, 0, 1, 0, 1, 0, 1},
-// 	{1, 1, 0, 1, 0, 1, 1},
-// 	{1, 1, 1, 0, 1, 0, 1},
-// 	{1, 1, 1, 1, 1, 1, 1}
-// };
+#define EXIT_ROW 6
+#define EXIT_COL 6
+int input_maze[EXIT_ROW][EXIT_COL] = {
+	{0, 0, 1, 0, 1, 1},
+	{0, 1, 0, 1, 0, 0},
+	{1, 0, 1, 0, 1, 1},
+	{1, 0, 0, 1, 0, 0},
+	{1, 1, 0, 1, 1, 1},
+	{1, 0, 1, 0, 0, 0}};
 
 // #define EXIT_ROW 8
 // #define EXIT_COL 8
@@ -45,23 +39,12 @@ int top = -1;
 // 	{0, 1, 0, 1, 0, 1, 1, 0},
 // };
 
-#define EXIT_ROW 10
-#define EXIT_COL 30
-int input_maze[EXIT_ROW][EXIT_COL] = {
-	{0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1},
-	{1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0},
-	{1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0},
-	{1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1},
-	{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1},
-	{1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1},
-	{1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0},
-	{1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0},
-	{1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0},
-	{0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-};
-
 int maze[EXIT_ROW + 2][EXIT_COL + 2];
 int mark[EXIT_ROW + 2][EXIT_COL + 2];
+wchar_t arrow[] = {L'↑', L'↗', L'→', L'↘', L'↓', L'↖', L'←', L'↙'};
+element stack[MAX_STACK_SIZE];
+element move[8] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+int top = -1;
 
 int stack_full()
 {
@@ -174,7 +157,11 @@ void printResult(int startDir, int backtrack)
 	}
 	printf("Stack info(%d)\n", top);
 	for (int i = 0; i <= top; i++)
-		wprintf(L"(%2d, %2d) |%2d(%lc)\n", stack[i].row, stack[i].col, (stack[i].dir + startDir) % 8, arrow[(stack[i].dir + startDir) % 8]);
+	{
+		printf("(%2d, %2d) ", stack[i].row, stack[i].col);
+		wprintf(L"|%2d", (stack[i].dir + startDir) % 8);
+		wprintf(L"(%lc)\n", arrow[(stack[i].dir + startDir) % 8]);
+	}
 	printf("\n\n");
 }
 

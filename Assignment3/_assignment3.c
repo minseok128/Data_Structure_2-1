@@ -1,13 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef enum _Job {
+	H = -1,
+	A = 0,
+	B = 1,
+	C = 2
+} Job;
+
 typedef struct listNode *listPointer;
 typedef struct listNode {
-	int data;
+	Job data;
 	listPointer link;
 } listNode;
 
-void addNode(listPointer *rear, int data)
+char get_char_job(Job job)
+{
+	switch (job)
+	{
+		case A:
+			return 'A';
+		case B:
+			return 'B';
+		case C:
+			return 'C';
+		default:
+			return 'H';
+	}
+}
+
+void addNode(listPointer *rear, Job data)
 {
 	listPointer tmp;
 
@@ -18,7 +40,7 @@ void addNode(listPointer *rear, int data)
 	*rear = tmp;
 }
 
-listPointer get_prev_node_by_data(listPointer rear, int target_data)
+listPointer get_prev_node_by_data(listPointer rear, Job target_data)
 {
 	listPointer tmp;
 
@@ -40,9 +62,9 @@ void cearse(listPointer *rear, listPointer front_of_target)
 	{
 		target = front_of_target->link;
 		front_of_target->link = target->link;
-		if (target->link->data == -1)
+		if (target->link->data == H)
 			*rear = front_of_target;
-		if (target->data != -1)
+		if (target->data != H)
 			free(target);
 	}
 }
@@ -51,25 +73,32 @@ int main()
 {
 	listPointer rear, tmp;
 	rear = (listPointer)malloc(sizeof(listNode));
-	rear->data = -1;
+	rear->data = H;
 	rear->link = rear;
 
-	addNode(&rear, 10);
-	addNode(&rear, 20);
-	addNode(&rear, 30);
-	addNode(&rear, 40);
+	addNode(&rear, A);
+	addNode(&rear, B);
+	addNode(&rear, B);
+	addNode(&rear, B);
+	addNode(&rear, C);
+	addNode(&rear, C);
+	addNode(&rear, C);
+	addNode(&rear, B);
+	addNode(&rear, C);
+	addNode(&rear, C);
+	addNode(&rear, A);
 
 	//printf("%p\n", getNode_by_data(rear, 20));
-	cearse(&rear, get_prev_node_by_data(rear, 10));
+	cearse(&rear, get_prev_node_by_data(rear, A));
 	//cearse(&rear, get_prev_node_by_data(rear, 20));
-	cearse(&rear, get_prev_node_by_data(rear, 30));
+	cearse(&rear, get_prev_node_by_data(rear, B));
 	//printf("%d & %d\n", get_prev_node_by_data(rear, 40)->data, get_prev_node_by_data(rear, 40)->link->link->data);
-	cearse(&rear, get_prev_node_by_data(rear, 40));
-	printf("rear:%d and %d\n", rear->data, rear->link->data);
+	cearse(&rear, get_prev_node_by_data(rear, C));
+	printf("rear:%c and %c\n", get_char_job(rear->data), get_char_job(rear->link->data));
 
 	tmp = rear->link->link;
 	while (tmp->data != -1) {
-		printf("%d\n", tmp->data);
+		printf("%c\n", get_char_job(tmp->data));
 		tmp = tmp->link;
 	}
 	return 0;

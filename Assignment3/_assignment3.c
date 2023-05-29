@@ -146,7 +146,7 @@ void view_state()
 {
 	listPointer tmp;
 
-	printf("├\n├ ");
+	printf("│\n├ ");
 	for (int i = 0; i < 3; i++)
 	{
 		if (repairman_state[i] == 1)

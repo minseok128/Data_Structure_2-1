@@ -83,39 +83,39 @@ void start_system()
 
 	while (1)
 	{
-		printf("\n1: 신규 고객 접수, 2: 기사 준비, 3: 고객 서비스 배당, 4: 고객 리스트 확인, 5: 종료\n");
-		printf("Enter your command(1~4) >> ");
+		printf("\n■ 1: 신규 고객 접수, 2: 기사 준비, 3: 고객 서비스 배당, 4: 고객 리스트 확인, 5: 종료\n");
+		printf("□ Enter your command(1~4) >> ");
 		scanf("%d", &command);
 
 		if (command == 1)
 		{
 			char job;
 
-			printf("%d번째 고객이 원하는 작업을 입력하세요(A, B, C) >> ", num);
+			printf("□ %d번째 고객이 원하는 작업을 입력하세요(A, B, C) >> ", num);
 			scanf(" %c", &job);
 			if (job == 'A' || job == 'B' || job == 'C')
 				addNode(&rear, num++, job - 'A');
 			else
-				printf("잘못된 입력입니다.\n");
+				printf("■ 잘못된 입력입니다.\n");
 		}
 		else if (command == 2)
 		{
 			char repairman_kind;
 
-			printf("준비 상태로 변환할 기사의 번호를 입력하세요(A, B, C) >> ");
+			printf("□ 준비 상태로 변환할 기사의 번호를 입력하세요(A, B, C) >> ");
 			scanf(" %c", &repairman_kind);
 			if (repairman_kind >= 'A' && repairman_kind <= 'C')
 			{
-				if (repairman_state[repairman_kind - 'A'] == 1)
+				if (!repairman_state[repairman_kind - 'A'])
 				{
 					repairman_state[repairman_kind - 'A'] = 1;
-					printf("%c 기사가 준비 상태로 변환되었습니다.\n", repairman_kind);
+					printf("■ %c 기사가 준비 상태로 변환되었습니다.\n", repairman_kind);
 				}
 				else
-					printf("이미 준비 상태입니다.\n");
+					printf("■ 이미 준비 상태입니다.\n");
 			}
 			else
-				printf("잘못된 입력입니다.\n");
+				printf("■ 잘못된 입력입니다.\n");
 		}
 		else if (command == 3)
 		{
@@ -130,35 +130,40 @@ void start_system()
 					if (tmp)
 					{
 						repairman_state[i] = 0;
-						printf("%c 담당 기사가 %d번째 고객의 서비스를 수행합니다.\n", get_char_job(i), tmp->link->num);
+						printf("■ %c 기사가 %d번째 고객의 서비스를 수행합니다.\n", get_char_job(i), tmp->link->num);
 						cearse(&rear, tmp);
 					}
 					else
-						printf("%c 담당 기사는 준비되었지만, 해당 작업을 원하는 고객이 없습니다.\n", get_char_job(i));
+						printf("■ %c 기사는 준비되었지만, 해당 작업을 원하는 고객이 없습니다.\n", get_char_job(i));
 				}
 				else
-					printf("%c 담당 기사는 준비되지 않았습니다.\n", get_char_job(i));
+					printf("■ %c 기사는 준비되지 않았습니다.\n", get_char_job(i));
 			}
 		}
 		else if (command == 4)
 		{
 			listPointer tmp;
 
+			for (int i = 0; i < 3; i++)
+			{
+				if (repairman_state[i] == 1)
+					printf("■ %c 기사는 준비되었습니다.\n", get_char_job(i));
+				else
+					printf("■ %c 기사는 준비되지 않았습니다.\n", get_char_job(i));
+			}
 			tmp = rear->link->link;
 			while (tmp->data != -1) {
-				printf("%d번째 고객:%c\n", tmp->num, get_char_job(tmp->data));
+				printf("■ %d번째 고객:%c\n", tmp->num, get_char_job(tmp->data));
 				tmp = tmp->link;
 			}
 		}
 		else if (command == 5)
 		{
-			printf("서비스를 종료합니다.\n");
+			printf("■ 서비스를 종료합니다.\n");
 			break;
 		}
 		else
-		{
-			printf("잘못된 입력입니다.\n");
-		}
+			printf("■ 잘못된 입력입니다.\n");
 	}
 }
 

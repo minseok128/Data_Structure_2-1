@@ -10,23 +10,23 @@ typedef enum _Job {
 
 typedef struct listNode *listPointer;
 typedef struct listNode {
-	int num;
-	Job data;
-	listPointer link;
+	int id; // 고객 ID
+	Job job_data; // 고객이 원하는 작업 유형
+	listPointer link; // 다음 노드를 가리키는 링크
 } listNode;
 
-char		get_char_job(Job job);
-void		addNode(listPointer *rear, int num, Job data);
-listPointer	get_prev_node_by_data(listPointer rear, Job target_data);
-void		cearse(listPointer *rear, listPointer front_of_target);
 void		init_system();
 void		start_system();
 void		receive_new_customer();
 void		ready_repairman();
 void		assign_service();
 void		view_state();
+char		get_char_job(Job job);
+void		attach(listPointer *rear, int num, Job job_data);
+listPointer	get_prev_node(listPointer rear, Job target_job);
+void		delete(listPointer *rear, listPointer front_of_target);
 
-int			num, repairman_state[3];
+int			repairman_state[3];
 listPointer	rear;
 
 int main()
@@ -38,24 +38,23 @@ int main()
 
 void init_system()
 {
-	num = 1;
 	for (int i = 0; i < 3; i++)
 		repairman_state[i] = 0;
-	rear = (listPointer)malloc(sizeof(listNode));
-	rear->data = H;
+	rear = (listPointer)malloc(sizeof(listNode)); // Header node 만들기
+	rear->job_data = H;
 	rear->link = rear;
 }
 
 void start_system()
 {
-	int command;
+	int command = 0;
 
-	while (1)
+	while (command != 5)
 	{
 		printf("\n┌──────────────────────────────────────────");
 		printf("──────────────────────────────────────────┐\n");
-		printf("├ 1: 신규 고객 접수 │ 2: 기사 준비 │ 3: 고객 서비스 배당 │ 4: 현황 확인 │ 5: 종료\n");
-		printf("┼ Enter your command(1~4) >> ");
+		printf("├ 1: 신규 고객 접수 │ 2: 기사 준비 │ 3: 서비스 배당 │ 4: 현황 확인 │ 5: 종료\n");
+		printf("┼ Enter your command(1~5) >> ");
 		scanf("%d", &command);
 		printf("┼\n");
 
@@ -68,12 +67,10 @@ void start_system()
 		else if (command == 4)
 			view_state();
 		else if (command == 5)
-		{
 			printf("├ 서비스를 종료합니다.\n");
-			break;
-		}
 		else
 			printf("├ 잘못된 입력입니다.\n");
+
 		printf("└──────────────────────────────────────────");
 		printf("──────────────────────────────────────────┘\n");
 	}
@@ -81,15 +78,17 @@ void start_system()
 
 void receive_new_customer()
 {
+	int id;
 	char job;
 
-	printf("┼ %d번째 고객이 원하는 작업을 입력하세요(A, B, C) >> ", num);
+	printf("┼ 신규 고객의 ID를 입력하세요(숫자) >> ");
+	scanf("%d", &id);
+	printf("┼ ID:%d 고객이 원하는 작업을 입력하세요(A, B, C) >> ", id);
 	scanf(" %c", &job);
 	if (job == 'A' || job == 'B' || job == 'C')
 	{
-		addNode(&rear, num, job - 'A');
-		printf("├ %d번째 고객의 %c 작업이 예약 되었습니다.\n", num, job);
-		num++;
+		attach(&rear, id, job - 'A');
+		printf("├ ID:%d 고객의 %c 작업이 예약 되었습니다.\n", id, job);
 		view_state();
 	}
 	else
@@ -126,15 +125,17 @@ void assign_service()
 		
 		if (repairman_state[i] == 1)
 		{
-			tmp = get_prev_node_by_data(rear, i);
+			tmp = get_prev_node(rear, i);
 			if (tmp)
 			{
 				repairman_state[i] = 0;
-				printf("├ %c 기사가 %d번째 고객의 서비스를 수행합니다.\n", get_char_job(i), tmp->link->num);
-				cearse(&rear, tmp);
+				printf("├ %c 기사가 ID:%d 고객의 서비스를 수행합니다.\n", \
+					get_char_job(i), tmp->link->id);
+				delete(&rear, tmp);
 			}
 			else
-				printf("├ %c 기사는 준비되었지만, 해당 작업을 원하는 고객이 없습니다.\n", get_char_job(i));
+				printf("├ %c 기사는 준비되었지만, 해당 작업을 원하는 고객이 없습니다.\n", \
+					get_char_job(i));
 		}
 		else
 			printf("├ %c 기사는 준비되지 않았습니다.\n", get_char_job(i));
@@ -158,8 +159,9 @@ void view_state()
 	}
 	printf("\n");
 	tmp = rear->link->link;
-	while (tmp->data != -1) {
-		printf("├ %d번째 고객: %c\n", tmp->num, get_char_job(tmp->data));
+	while (tmp->job_data != -1)
+	{
+		printf("├ ID:%-11d 고객: %c\n", tmp->id, get_char_job(tmp->job_data));
 		tmp = tmp->link;
 	}
 }
@@ -168,45 +170,41 @@ char get_char_job(Job job)
 {
 	switch (job)
 	{
-		case A:
-			return ('A');
-		case B:
-			return ('B');
-		case C:
-			return ('C');
-		default:
-			return ('H');
+		case A: return ('A');
+		case B: return ('B');
+		case C: return ('C');
+		default: return ('H');
 	}
 }
 
 /* 헤더가 있는 원형 연결 리스트 관련 함수들 */
-void addNode(listPointer *rear, int num, Job data)
+void attach(listPointer *rear, int num, Job job_data)
 {
 	listPointer tmp;
 
 	tmp = (listPointer)malloc(sizeof(listNode));
-	tmp->data = data;
-	tmp->num = num;
+	tmp->job_data = job_data;
+	tmp->id = num;
 	tmp->link = (*rear)->link;
 	(*rear)->link = tmp;
 	*rear = tmp;
 }
 
-listPointer get_prev_node_by_data(listPointer rear, Job target_data)
+listPointer get_prev_node(listPointer rear, Job target_job)
 {
 	listPointer tmp;
 
 	tmp = rear->link;
-	while (tmp->link->data != -1)
+	while (tmp->link->job_data != -1)
 	{
-		if (tmp->link->data == target_data)
+		if (tmp->link->job_data == target_job)
 			return (tmp);
 		tmp = tmp->link;
 	}
 	return (0);
 }
 
-void cearse(listPointer *rear, listPointer front_of_target)
+void delete(listPointer *rear, listPointer front_of_target)
 {
 	listPointer target;
 
@@ -214,9 +212,9 @@ void cearse(listPointer *rear, listPointer front_of_target)
 	{
 		target = front_of_target->link;
 		front_of_target->link = target->link;
-		if (target->link->data == H)
+		if (target->link->job_data == H)
 			*rear = front_of_target;
-		if (target->data != H)
+		if (target->job_data != H)
 			free(target);
 	}
 }

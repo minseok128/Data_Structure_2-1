@@ -15,11 +15,11 @@ typedef enum {
 	operand
 } precedence;
 
-int isp[] = {0, 19, 12, 12, 13, 13, 13, 0};
-int icp[] = {20, 19, 12, 12, 13, 13, 13, 0};
+int isp[] = {0, 3, 1, 1, 2, 2, 2, 0};
+int icp[] = {4, 3, 1, 1, 2, 2, 2, 0};
 
 string expr;
-stack<char> s;
+stack<precedence> s;
 
 precedence getToken(char *symbol, int *n)
 {
@@ -38,6 +38,21 @@ precedence getToken(char *symbol, int *n)
 	}
 }
 
+void printToken(precedence t)
+{
+	switch (t)
+	{
+		case rparen : cout << ')'; break;
+		case lparen : cout << '('; break;
+		case plus_ :  cout << '+'; break;
+		case minus_ : cout << '-'; break;
+		case divide : cout << '/'; break;
+		case times : cout << '*'; break;
+		case mod : cout << '%'; break;
+		default: break;
+	}
+}
+
 void postfix(void)
 {
 	precedence token;
@@ -49,11 +64,11 @@ void postfix(void)
 	{
 		if (token == operand)
 			cout << symbol;
-		else if (token == lparen)
+		else if (token == rparen)
 		{
-			while (s.top() != rparen)
+			while (s.top() != lparen)
 			{
-				cout << s.top();
+				printToken(s.top());
 				s.pop();
 			}
 			s.pop();
@@ -62,17 +77,19 @@ void postfix(void)
 		{
 			while (isp[s.top()] >= icp[token])
 			{
-				cout << s.top();
+				printToken(s.top());
 				s.pop();
 			}
 			s.push(token);
 		}
 	}
-
+	
+	token = s.top();
 	while (token != eos)
 	{
-		cout << s.top();
+		printToken(s.top());
 		s.pop();
+		token = s.top();
 	}
 }
 
@@ -83,5 +100,5 @@ int main()
 	ios::sync_with_stdio(0);
 
 	cin >> expr;
-
+	postfix();
 }
